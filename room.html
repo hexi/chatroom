@@ -1,0 +1,82 @@
+<!doctype>
+<html>
+	<head>
+		<title>chatroom</title>
+		<style type="text/css">
+			.content{
+				width: 90%;
+				height: 80%;
+				display:-webkit-box;
+				-webkit-box-orient:horizontal;
+			}
+			.left{
+				width: 70%;
+				height: 100%;
+				border: 2px solid blue;
+			}
+			#messageBox{
+				width: 100%;
+				height: 70%;
+			}
+			#inputBox{
+				width: 100%;
+				height: 30%;
+				border: 1px solid green;
+			}
+			.right{
+				border: 2px solid red;
+				width: 30%;
+				height: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<div class='content'>
+			<div class="left">
+				<div id="messageBox">
+
+				</div>
+				<textarea id="inputBox">
+
+				</textarea>
+			</div>
+			<div class="right">
+			</div>
+		</div>
+	</body>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		var chat = io.connect('http://localhost/chat');
+		document.body.onload=function(){
+			addListenter();
+			inputBoxInit();
+		};
+		function inputBoxInit(){
+			var inputBox=document.getElementById('inputBox');
+			inputBox.value="";
+			inputBox.focus();
+		};
+		function addListenter(){
+			  chat.on('connect', function () {
+			     chat.on('getMessage', function (data) {
+				    showMessage(data);
+				});
+			    	document.getElementById('inputBox').addEventListener('keypress',function(evt){
+					if (evt.keyCode == 13){
+						var inputBox=document.getElementById('inputBox');
+						var message=inputBox.value;
+						chat.emit('sendMessage',message);
+						inputBox.value="";
+				     }
+				});
+			  });
+		}
+
+		function showMessage(data){
+			console.log('getMessage:'+data);
+			var messageBox=document.getElementById('messageBox');
+			var old=messageBox.innerText || '';
+			messageBox.innerText=old+data;
+		}
+	</script>
+</html>
